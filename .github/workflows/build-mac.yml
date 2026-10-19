@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Compilar (universal: Apple Silicon + Intel)
+      - name: Compilar universal (Apple Silicon e Intel)
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release -j 4
