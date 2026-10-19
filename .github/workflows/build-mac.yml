@@ -1,0 +1,31 @@
+name: Compilar ParaEQ (macOS)
+
+on:
+  workflow_dispatch:      # botón "Run workflow" en la pestaña Actions
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compilar (universal: Apple Silicon + Intel)
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release -j 4
+
+      - name: Empaquetar y firmar
+        run: |
+          mkdir out
+          cp -R "$(find build -name ParaEQ.vst3 -maxdepth 5 | head -n 1)" out/
+          cp -R "$(find build -name ParaEQ.component -maxdepth 5 | head -n 1)" out/
+          codesign --force --deep -s - out/ParaEQ.vst3
+          codesign --force --deep -s - out/ParaEQ.component
+          cp Instalar.command out/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ParaEQ-macOS
+          path: out
